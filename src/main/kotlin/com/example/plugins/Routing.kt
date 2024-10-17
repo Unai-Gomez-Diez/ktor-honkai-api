@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.model.Character
+import com.example.model.CharacterRepository
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.response.*
@@ -11,20 +12,19 @@ fun Application.configureRouting() {
 
         // Static plugin. Try to access `/static/index.html`
         staticResources("/static", "static")
+        val characters: CharacterRepository = CharacterRepository()
 
-        get("/") {
-            call.respond(
-                listOf(
-                    Character(8,
-                        "Seele",
-                        5,
-                        "Hunt",
-                        "Quantum",
-                        "2023-04-26T00:00:00.000Z",
-                        "A resident of the Underworld and the backbone of Wildfire. She goes by the alias \"Babochka.\" She has a frank personality, but there is a delicate and sensitive hidden side to her deep in her heart.",
-                        "https://static.wikia.nocookie.net/houkai-star-rail/images/5/58/Character_Seele_Splash_Art.png/revision/latest/scale-to-width-down/1000?cb=20230706032216")
-                )
-            )
+        get("/characters") {
+
+            val list = characters.getCharacters()
+
+            call.respond(list) // Responde con la lista de personajes
+        }
+
+        get("/characters/{id}"){
+            val id = call.parameters["id"]?.toInt()
+            val character = characters.getCharacter(id!!)
+            call.respond(character)
         }
     }
 }
